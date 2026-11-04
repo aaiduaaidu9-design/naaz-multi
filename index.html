@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NAAZ MULTI</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d6246e">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#faf7f8;color:#222}
+header{position:sticky;top:0;z-index:5;background:#d6246e;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
+header h1{margin:0;font-size:20px}header button{background:#fff;color:#d6246e}
+main{padding:12px;max-width:900px;margin:auto}
+button{border:0;border-radius:8px;padding:8px 12px;background:#d6246e;color:#fff;font-size:14px;cursor:pointer}
+button.gray{background:#888}button.wa{background:#25d366;width:100%;padding:12px;font-size:16px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.chip{background:#fff;color:#d6246e;border:1px solid #d6246e;white-space:nowrap}.chip.on{background:#d6246e;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:#fff;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:4px;box-shadow:0 1px 4px #0001}
+.card img,.ph{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:40px}
+.card span{color:#d6246e;font-weight:600}.card em{color:#999;font-size:13px}
+.box{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+.box h2,.box h3{margin:0;display:flex;justify-content:space-between;align-items:center}
+input,select{padding:10px;border:1px solid #ccc;border-radius:8px;font-size:16px;width:100%}input[type=checkbox]{width:auto}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #eee;padding-top:8px}
+.err{color:#c00;margin:0}.sheet{position:fixed;inset:0;background:#0007;z-index:10;display:flex;align-items:flex-end}
+.sheet .box{width:100%;max-height:80vh;overflow:auto;margin:0;border-radius:16px 16px 0 0}
+.x{background:#eee;color:#333}footer{text-align:center;padding:16px;font-size:12px}footer a{color:#999}
+</style></head><body>
+<header><h1>NAAZ MULTI</h1><button onclick="toggleCart()">🛒 <span id="cnt">0</span></button></header>
+<main id="app"></main>
+<footer><a href="#admin">Admin</a> · <a href="#">Shop</a></footer>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const WHATSAPP="94XXXXXXXXX";
+const CATS=["Dress","Shoes","Toys","Plastic","Kitchenware","Daraz"];
+const fb=initializeApp({
+  apiKey:"AIzaSyD9qxeP6S4wawscbG7tXSFjJJ_JnBDqbRs",
+  authDomain:"naaz-multi.firebaseapp.com",
+  projectId:"naaz-multi",
+  storageBucket:"naaz-multi.firebasestorage.app",
+  messagingSenderId:"385976763931",
+  appId:"1:385976763931:web:6cfdce44195c6831899abe"
+});
+const db=getFirestore(fb),auth=getAuth(fb);
+let products=[],cat="All",cart={},user=null,editId=null,showCart=false;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>"Rs. "+Number(n||0).toLocaleString();
+
+onSnapshot(query(collection(db,"products"),orderBy("createdAt","desc")),s=>{products=s.docs.map(d=>({id:d.id,...d.data()}));render()},e=>console.error(e));
+onAuthStateChanged(auth,u=>{user=u;render()});
+addEventListener("hashchange",render);
+
+function cartItems(){return Object.entries(cart).map(([id,q])=>({p:products.find(x=>x.id===id),q})).filter(x=>x.p)}
+function render(){
+  $("#cnt").textContent=Object.values(cart).reduce((a,b)=>a+b,0);
+  $("#app").innerHTML=location.hash==="#admin"?adminView():storeView();
+}
+function storeView(){
+  const list=products.filter(p=>cat==="All"||p.category===cat);
+  return `<div class="chips">${["All",...CATS].map(c=>`<button class="chip ${c===cat?"on":""}" onclick="setCat('${c}')">${c}</button>`).join("")}</div>
+  <div class="grid">${list.map(p=>`<div class="card">${p.imageUrl?`<img src="${esc(p.imageUrl)}" loading="lazy" alt="">`:`<div class="ph">📦</div>`}<b>${esc(p.name)}</b><span>${money(p.price)}</span>${p.inStock===false?`<em>Out of stock</em>`:`<button onclick="add('${p.id}')">Add to cart</button>`}</div>`).join("")}</div>
+  ${list.length?"":"<p>No products yet</p>"}${showCart?cartView():""}`;
+}
+function cartView(){
+  const items=cartItems(),total=items.reduce((a,x)=>a+x.p.price*x.q,0);
+  return `<div class="sheet"><div class="box"><h3>Your Cart <button class="x" onclick="toggleCart()">✕</button></h3>
+  ${items.map(x=>`<div class="row"><span>${esc(x.p.name)}<br><small>${money(x.p.price)}</small></span><span><button onclick="qty('${x.p.id}',-1)">−</button> ${x.q} <button onclick="qty('${x.p.id}',1)">+</button></span></div>`).join("")||"<p>Cart is empty</p>"}
+  ${items.length?`<p><b>Total: ${money(total)}</b></p><button class="wa" onclick="order()">Order on WhatsApp</button>`:""}</div></div>`;
+}
+function adminView(){
+  if(!user)return `<div class="box"><h2>Admin Login</h2><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password"><p id="err" class="err"></p><button onclick="login()">Login</button></div>`;
+  const e=products.find(p=>p.id===editId)||{};
+  return `<div class="box"><h2>${editId?"Edit":"Add"} Product</h2>
+  <input id="n" placeholder="Product name" value="${esc(e.name)}">
+  <input id="pr" type="number" placeholder="Price (Rs.)" value="${e.price??""}">
+  <select id="ct">${CATS.map(c=>`<option ${c===e.category?"selected":""}>${c}</option>`).join("")}</select>
+  <input id="im" placeholder="Photo URL (optional)" value="${esc(e.imageUrl)}">
+  <label><input type="checkbox" id="st" ${e.inStock===false?"":"checked"}> In stock</label>
+  <button onclick="save()">Save</button>${editId?`<button class="gray" onclick="edit(null)">Cancel</button>`:""}</div>
+  <div class="box"><h3>Products (${products.length}) <button class="gray" onclick="logout()">Logout</button></h3>
+  ${products.map(p=>`<div class="row"><span>${esc(p.name)}<br><small>${money(p.price)} · ${esc(p.category)}${p.inStock===false?" · out of stock":""}</small></span><span><button onclick="edit('${p.id}')">✏️</button> <button class="gray" onclick="del('${p.id}')">🗑️</button></span></div>`).join("")}</div>`;
+}
+Object.assign(window,{
+  setCat:c=>{cat=c;render()},
+  toggleCart:()=>{showCart=!showCart;render()},
+  add:id=>{cart[id]=(cart[id]||0)+1;render()},
+  qty:(id,d)=>{cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];render()},
+  order:()=>{
+    const items=cartItems(),total=items.reduce((a,x)=>a+x.p.price*x.q,0);
+    const msg="Hello NAAZ MULTI, I want to order:\n"+items.map(x=>`${x.q} x ${x.p.name} - ${money(x.p.price*x.q)}`).join("\n")+"\nTotal: "+money(total);
+    open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank");
+  },
+  login:async()=>{
+    try{await signInWithEmailAndPassword(auth,$("#em").value.trim(),$("#pw").value)}
+    catch(e){$("#err").textContent="Login failed: check email/password"}
+  },
+  logout:()=>signOut(auth),
+  edit:id=>{editId=id;render();scrollTo(0,0)},
+  save:async()=>{
+    const price=parseInt($("#pr").value,10),name=$("#n").value.trim();
+    if(!name||isNaN(price))return alert("Name and price (number) required");
+    const data={name,price,category:$("#ct").value,imageUrl:$("#im").value.trim(),inStock:$("#st").checked};
+    try{
+      if(editId)await updateDoc(doc(db,"products",editId),data);
+      else await addDoc(collection(db,"products"),{...data,createdAt:serverTimestamp()});
+      editId=null;render();
+    }catch(e){alert("Save failed: "+e.message)}
+  },
+  del:async id=>{if(confirm("Delete this product?")){try{await deleteDoc(doc(db,"products",id))}catch(e){alert(e.message)}}}
+});
+</script></body></html>
