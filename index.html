@@ -171,3 +171,29 @@ Object.assign(window,{
   del:async id=>{if(confirm("Delete this product?")){try{await deleteDoc(doc(db,"products",id))}catch(e){alert(e.message)}}}
 });
 </script></body></html>
+<style>
+#splash{position:fixed;inset:0;z-index:50;background:#03102b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s}
+#splash img{width:110px;animation:logoin 1.2s cubic-bezier(.2,1.4,.4,1) both}
+#splash b{letter-spacing:6px;color:#7dd3fc;animation:fade .8s .5s both}
+@keyframes logoin{from{transform:scale(.2) rotate(-180deg);opacity:0}}
+.bub{position:fixed;bottom:-60px;border-radius:50%;background:radial-gradient(circle,#7dd3fc55,#2563eb11);z-index:0;pointer-events:none;animation:up linear infinite}
+@keyframes up{to{transform:translateY(-115vh)}}
+.tick{position:relative;z-index:1;overflow:hidden;white-space:nowrap;background:#ffffff10;border-bottom:1px solid var(--line);padding:6px 0;font-size:13px;color:#bae6fd}
+.tick span{display:inline-block;padding-left:100%;animation:mq 18s linear infinite}
+@keyframes mq{to{transform:translateX(-100%)}}
+</style>
+<script>
+(function(){
+var s=document.createElement("div");s.id="splash";
+s.innerHTML='<img src="logo.png" alt=""><b>NAAZ MULTI</b>';
+document.body.appendChild(s);
+setTimeout(function(){s.style.opacity=0;setTimeout(function(){s.remove()},600)},1800);
+for(var i=0;i<12;i++){var b=document.createElement("div");b.className="bub";
+var z=20+Math.random()*50;
+b.style.cssText="width:"+z+"px;height:"+z+"px;left:"+Math.random()*100+"%;animation-duration:"+(8+Math.random()*10)+"s;animation-delay:-"+Math.random()*10+"s";
+document.body.appendChild(b)}
+var t=document.createElement("div");t.className="tick";
+t.innerHTML="<span>✨ NAAZ MULTI · New Collection · WhatsApp-la easy-ah order pannunga ✨</span>";
+document.querySelector("header").after(t);
+})();
+</script>
