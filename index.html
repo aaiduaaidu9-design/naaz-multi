@@ -344,4 +344,74 @@ addEventListener("hashchange",vis);vis();
 main{z-index:2}
 .about,footer{z-index:0}
   </style>
+  <style>
+.fb{position:relative;z-index:0;max-width:900px;margin:0 auto;padding:0 12px 12px}
+.fb .box{gap:10px}
+.stars{display:flex;gap:6px;font-size:32px}
+.stars span{cursor:pointer;color:#ffffff40;transition:transform .15s,color .15s}
+.stars span.on{color:#fcd34d;transform:scale(1.15)}
+.fb textarea{padding:10px;border:1px solid var(--line);border-radius:10px;font-size:16px;width:100%;min-height:80px;background:#00000040;color:#fff;font-family:inherit}
+.fbc{border-top:1px solid var(--line);padding-top:10px}
+.fbc b{display:block}.fbc .st{color:#fcd34d;letter-spacing:2px}
+.fbc p{margin:4px 0 0;color:#d6ecff;line-height:1.4}.fbc small{opacity:.6}
+.fbok{color:#86efac}.fberr{color:#ff7b7b}
+</style>
+<script type="module">
+import {getApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,where,limit,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const app=getApp(),db=getFirestore(app),auth=getAuth(app);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const stars=n=>"★".repeat(n)+"☆".repeat(5-n);
+const when=d=>d&&d.toDate?d.toDate().toLocaleDateString():"";
+const sec=()=>{const s=document.createElement("section");s.className="fb";return s};
+const pub=sec(),adm=sec();
+pub.innerHTML=`<div class="box"><h3>⭐ Customer Feedback</h3><div id="fbList"></div></div>
+<div class="box"><h3>Share your feedback</h3>
+<input id="fbn" maxlength="40" placeholder="Your name">
+<div class="stars" id="fbs"><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div>
+<textarea id="fbt" maxlength="400" placeholder="Write your feedback..."></textarea>
+<small id="fbm"></small>
+<button id="fbb">Submit feedback</button></div>`;
+(document.querySelector(".about")||$("main")).after(pub);pub.after(adm);
+let rate=0;
+$("#fbs").addEventListener("click",e=>{const v=+e.target.dataset.v;if(!v)return;rate=v;[...$("#fbs").children].forEach((x,i)=>x.classList.toggle("on",i<v))});
+$("#fbb").addEventListener("click",async()=>{
+  const m=$("#fbm"),b=$("#fbb"),name=$("#fbn").value.trim(),text=$("#fbt").value.trim();
+  m.className="";
+  if(name.length<2||!rate||text.length<3){m.className="fberr";m.textContent="Please enter name, stars and your feedback";return}
+  if(Date.now()-(+localStorage.getItem("fbLast")||0)<60000){m.className="fberr";m.textContent="Please wait a minute before sending again";return}
+  b.disabled=true;
+  try{
+    await addDoc(collection(db,"feedback"),{name,rating:rate,text,approved:false,createdAt:serverTimestamp()});
+    localStorage.setItem("fbLast",Date.now());
+    $("#fbn").value="";$("#fbt").value="";rate=0;[...$("#fbs").children].forEach(x=>x.classList.remove("on"));
+    m.className="fbok";m.textContent="Thank you! 🙏 Your feedback will show after approval.";
+  }catch(e){m.className="fberr";m.textContent="Could not send: "+e.message}
+  b.disabled=false;
+});
+onSnapshot(query(collection(db,"feedback"),where("approved","==",true),limit(40)),s=>{
+  const a=s.docs.map(d=>d.data()).sort((x,y)=>((y.createdAt&&y.createdAt.seconds)||0)-((x.createdAt&&x.createdAt.seconds)||0));
+  $("#fbList").innerHTML=a.length?a.map(f=>`<div class="fbc"><span class="st">${stars(f.rating)}</span><b>${esc(f.name)}</b><p>${esc(f.text)}</p><small>${when(f.createdAt)}</small></div>`).join(""):'<p style="margin:0;opacity:.7">No feedback yet. Be the first!</p>';
+},()=>{});
+// admin moderation
+let off=null;
+onAuthStateChanged(auth,u=>{
+  if(off){off();off=null}
+  if(u)off=onSnapshot(collection(db,"feedback"),s=>{
+    const a=s.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>(x.approved-y.approved)||(((y.createdAt&&y.createdAt.seconds)||0)-((x.createdAt&&x.createdAt.seconds)||0)));
+    const n=a.filter(f=>!f.approved).length;
+    adm.innerHTML=`<div class="box"><h3>💬 Feedback (${n} pending)</h3>${a.map(f=>`<div class="fbc"><span class="st">${stars(f.rating)}</span> ${f.approved?"✅":"🕐 pending"}<b>${esc(f.name)}</b><p>${esc(f.text)}</p><div style="display:flex;gap:8px;margin-top:6px">${f.approved?"":`<button data-id="${f.id}" data-act="ok">Approve</button>`}<button class="gray" data-id="${f.id}" data-act="del">Delete</button></div></div>`).join("")||"<p>No feedback yet</p>"}</div>`;
+  },()=>{});
+  vis();
+});
+adm.addEventListener("click",async e=>{
+  const b=e.target.closest("button[data-id]");if(!b)return;
+  const r=doc(db,"feedback",b.dataset.id);
+  try{if(b.dataset.act==="ok")await updateDoc(r,{approved:true});else if(confirm("Delete this feedback?"))await deleteDoc(r)}catch(x){alert(x.message)}
+});
+function vis(){const a=location.hash==="#admin";pub.style.display=a?"none":"block";adm.style.display=a&&auth.currentUser?"block":"none"}
+addEventListener("hashchange",vis);vis();
+</script>
 </body></html>
