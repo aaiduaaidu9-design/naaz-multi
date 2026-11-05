@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+7<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -195,5 +195,42 @@ document.body.appendChild(b)}
 var t=document.createElement("div");t.className="tick";
 t.innerHTML="<span>✨ NAAZ MULTI · New Collection · WhatsApp-la easy-ah order pannunga ✨</span>";
 document.querySelector("header").after(t);
+})();
+</script>
+<style>
+body{background-size:200% 200%;animation:bgmove 16s ease-in-out infinite}
+@keyframes bgmove{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+h1{background:linear-gradient(90deg,#38bdf8,#e0f2fe,#93c5fd,#38bdf8);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:shimmer 4s linear infinite}
+@keyframes shimmer{to{background-position:-300% 0}}
+.star{position:fixed;width:3px;height:3px;border-radius:50%;background:#e0f2fe;z-index:0;pointer-events:none;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:.9;transform:scale(1.5)}}
+button{position:relative;overflow:hidden}
+.rip{position:absolute;border-radius:50%;background:#ffffff66;transform:scale(0);animation:ripple .6s ease-out;pointer-events:none}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+.wa{animation:wapulse 2s infinite!important}
+@keyframes wapulse{0%{box-shadow:0 0 0 0 #25d36699}70%{box-shadow:0 0 0 14px #25d36600}100%{box-shadow:0 0 0 0 #25d36600}}
+</style>
+<script>
+(function(){
+for(var i=0;i<30;i++){var s=document.createElement("div");s.className="star";
+s.style.cssText="left:"+Math.random()*100+"%;top:"+Math.random()*100+"%;animation-delay:-"+Math.random()*3+"s;animation-duration:"+(2+Math.random()*3)+"s";
+document.body.appendChild(s)}
+document.addEventListener("pointerdown",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  var r=b.getBoundingClientRect(),d=Math.max(r.width,r.height),x=document.createElement("span");
+  x.className="rip";x.style.cssText="width:"+d+"px;height:"+d+"px;left:"+(e.clientX-r.left-d/2)+"px;top:"+(e.clientY-r.top-d/2)+"px";
+  b.appendChild(x);setTimeout(function(){x.remove()},600)
+});
+document.addEventListener("click",function(e){
+  var b=e.target.closest(".card button");if(!b)return;
+  var src=b.closest(".card").querySelector("img,.ph"),cart=document.getElementById("cartBtn");
+  if(!src||!cart)return;
+  var a=src.getBoundingClientRect(),c=cart.getBoundingClientRect();
+  var f=src.cloneNode(true);
+  f.style.cssText="position:fixed;z-index:60;pointer-events:none;margin:0;border-radius:12px;left:"+a.left+"px;top:"+a.top+"px;width:"+a.width+"px;height:"+a.height+"px;animation:none";
+  document.body.appendChild(f);
+  var an=f.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+(c.left+c.width/2-a.left-a.width/2)+"px,"+(c.top+c.height/2-a.top-a.height/2)+"px) scale(.1)",opacity:.4}],{duration:700,easing:"cubic-bezier(.5,0,.8,.4)"});
+  an.onfinish=function(){f.remove();cart.animate([{transform:"scale(1)"},{transform:"scale(1.4)"},{transform:"scale(1)"}],{duration:350})};
+},true);
 })();
 </script>
