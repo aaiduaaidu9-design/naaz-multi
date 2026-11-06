@@ -1,8 +1,17 @@
 {
-  "name": "NAAZ MULTI",
+  "name": "NAAZ MULTI COLLECTION",
   "short_name": "NAAZ MULTI",
-  "start_url": ".",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#d6246e"
+  "orientation": "portrait",
+  "background_color": "#03102b",
+  "theme_color": "#03102b",
+  "categories": ["shopping"],
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
 }
