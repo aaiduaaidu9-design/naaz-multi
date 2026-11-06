@@ -414,4 +414,107 @@ adm.addEventListener("click",async e=>{
 function vis(){const a=location.hash==="#admin";pub.style.display=a?"none":"block";adm.style.display=a&&auth.currentUser?"block":"none"}
 addEventListener("hashchange",vis);vis();
 </script>
+  <style>
+.hero{display:none!important}
+body{padding-bottom:74px}
+.hm{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:10px 12px 0}
+.hm-search{display:flex;align-items:center;gap:8px;background:#ffffff14;border:1.5px solid #38bdf8;border-radius:14px;padding:4px 4px 4px 14px;box-shadow:0 0 18px #38bdf833;animation:hmup .6s both}
+.hm-search input{flex:1;width:auto;background:transparent;border:0;outline:0;color:#fff;font-size:16px;padding:10px 0}
+.hm-search button{padding:10px 16px;font-weight:700;border-radius:10px}
+.hm-trust{display:flex;justify-content:space-around;gap:6px;margin:12px 0;padding:10px 6px;background:#ffffff0d;border:1px solid var(--line);border-radius:14px;font-size:12px;color:#bae6fd}
+.hm-trust span{display:flex;align-items:center;gap:6px;animation:hmup .6s both}
+.hm-trust i{font-style:normal;font-size:18px;animation:hmbob 2.4s ease-in-out infinite}
+.hm-trust span:nth-child(2) i{animation-delay:.4s}.hm-trust span:nth-child(3) i{animation-delay:.8s}
+@keyframes hmbob{50%{transform:translateY(-3px) scale(1.12)}}
+@keyframes hmup{from{opacity:0;transform:translateY(12px)}}
+@keyframes hmpop{from{opacity:0;transform:scale(.4)}}
+.hm-cats{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 12px;scrollbar-width:none}
+.hm-cats::-webkit-scrollbar{display:none}
+.hm-cat{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;width:68px;font-size:12px;color:#d6ecff;cursor:pointer;animation:hmpop .5s both;animation-delay:calc(var(--i)*70ms)}
+.hm-ic{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--g);box-shadow:0 6px 16px #0006;transition:transform .2s;animation:hmbob 3s ease-in-out infinite;animation-delay:calc(var(--i)*.25s)}
+.hm-cat:active .hm-ic{transform:scale(.88)}
+.hm-cat.sel .hm-ic{outline:3px solid #fff;outline-offset:2px}.hm-cat.sel{color:#fff;font-weight:700}
+.hm-ban{position:relative;overflow:hidden;border-radius:18px;height:176px;border:1px solid var(--line);box-shadow:0 10px 30px #0008;touch-action:pan-y}
+.hm-track{display:flex;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.hm-sl{flex:0 0 100%;position:relative;display:flex;flex-direction:column;justify-content:center;padding:18px 20px;background:var(--bg);overflow:hidden}
+.hm-sl h2{margin:0;font-size:22px;line-height:1.15;color:#fff;max-width:65%}
+.hm-sl p{margin:6px 0 12px;color:#e0f2fe;font-size:13px;max-width:62%}
+.hm-btn{align-self:flex-start;padding:9px 16px;border-radius:999px;background:#fff;color:#0a2a66;font-weight:700;font-size:13px}
+.hm-sl.on h2{animation:hmup .7s both}.hm-sl.on p{animation:hmup .7s .15s both}.hm-sl.on .hm-btn{animation:hmup .7s .3s both}
+.hm-fl{position:absolute;right:18px;top:34px;font-size:68px;animation:hmfloat 4s ease-in-out infinite;filter:drop-shadow(0 8px 12px #0006)}
+.hm-fl.s{font-size:28px;right:96px;top:18px;animation-delay:.8s}.hm-fl.t{font-size:24px;right:20px;top:112px;animation-delay:1.5s}
+@keyframes hmfloat{50%{transform:translateY(-10px) rotate(6deg)}}
+.hm-ban::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,#ffffff30,transparent);transform:skewX(-20deg);animation:hmshine 5s infinite;pointer-events:none}
+@keyframes hmshine{0%,50%{left:-60%}100%{left:140%}}
+.hm-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:2}
+.hm-dots i{width:7px;height:7px;border-radius:99px;background:#ffffff66;transition:.3s;cursor:pointer}.hm-dots i.on{width:20px;background:#fff}
+.hm-h{margin:14px 2px 2px;font-size:15px;color:#bae6fd;letter-spacing:.5px}
+.hm-no{display:none;text-align:center;padding:14px;color:#bae6fd}
+.card:nth-child(-n+3) span::after{content:"NEW";margin-left:8px;font-size:10px;padding:2px 6px;border-radius:6px;background:linear-gradient(90deg,#f43f5e,#fb923c);color:#fff;vertical-align:middle}
+.bn{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:#03102bee;backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
+.bn div{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:#93b4d9;cursor:pointer;position:relative}
+.bn div i{font-style:normal;font-size:22px;transition:transform .25s}
+.bn div:active i{transform:scale(.8)}.bn div.on{color:#7dd3fc}.bn div.on i{transform:translateY(-3px) scale(1.15)}
+.bn .bdg{position:absolute;top:-3px;left:56%;min-width:16px;height:16px;border-radius:9px;background:#f43f5e;color:#fff;font-size:10px;display:none;align-items:center;justify-content:center;padding:0 4px}
+.bn .bdg.pop{animation:hmpop .4s both}
+body.cartopen .bn,body.adm .bn{display:none}
+</style>
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)},WA="94767605858";
+var CATS=[["All","🛍️","#0ea5e9,#2563eb"],["Dress","👗","#ec4899,#8b5cf6"],["Shoes","👟","#f97316,#ef4444"],["Toys","🧸","#f59e0b,#fb7185"],["Plastic","🧺","#14b8a6,#0ea5e9"],["Kitchenware","🍽️","#22c55e,#0ea5e9"],["Daraz","📦","#fb923c,#f43f5e"]];
+var SL=[["#0b3b8f,#2563eb,#38bdf8","🛍️","✨","🎁","New Arrivals Every Week","Dress, shoes, toys, kitchenware & more","Shop Now","all"],
+["#064e3b,#059669,#25d366","💬","📱","✅","Order Easily on WhatsApp","Add to cart and send your order in one tap","Chat Now","wa"],
+["#0f172a,#1d4ed8,#7dd3fc","📍","🏪","🛒","Visit Our Store","Mattakkuliya, Colombo 15","See Location","about"]];
+var hm=document.createElement("section");hm.className="hm";
+hm.innerHTML='<div class="hm-search"><input id="hmq" placeholder="Search products (e.g. mug, shoes)"><button id="hmgo">Search</button></div>'
++'<div class="hm-trust"><span><i>💬</i>WhatsApp Orders</span><span><i>🏪</i>Visit Our Store</span><span><i>📍</i>Colombo 15</span></div>'
++'<div class="hm-ban"><div class="hm-track">'+SL.map(function(s){return '<div class="hm-sl" style="--bg:linear-gradient(120deg,'+s[0]+')"><span class="hm-fl">'+s[1]+'</span><span class="hm-fl s">'+s[2]+'</span><span class="hm-fl t">'+s[3]+'</span><h2>'+s[4]+'</h2><p>'+s[5]+'</p><button class="hm-btn" data-a="'+s[7]+'">'+s[6]+' →</button></div>'}).join("")+'</div><div class="hm-dots">'+SL.map(function(){return "<i></i>"}).join("")+'</div></div>'
++'<div class="hm-h">SHOP BY CATEGORY</div><div class="hm-cats">'+CATS.map(function(c,i){return '<div class="hm-cat" data-c="'+c[0]+'" style="--i:'+i+';--g:linear-gradient(135deg,'+c[2]+')"><div class="hm-ic">'+c[1]+'</div>'+(c[0]=="All"?"All":c[0])+'</div>'}).join("")+'</div><div class="hm-no" id="hmno">No products found 😕</div>';
+$("main").before(hm);
+// carousel
+var tr=$(".hm-track"),sl=hm.querySelectorAll(".hm-sl"),dots=hm.querySelectorAll(".hm-dots i"),ix=0,tm;
+function go(n){ix=(n+SL.length)%SL.length;tr.style.transform="translateX(-"+ix*100+"%)";sl.forEach(function(e,i){e.classList.toggle("on",i==ix)});dots.forEach(function(e,i){e.classList.toggle("on",i==ix)})}
+function auto(){clearInterval(tm);tm=setInterval(function(){go(ix+1)},4500)}
+go(0);auto();
+dots.forEach(function(d,i){d.onclick=function(){go(i);auto()}});
+var sx=null,ban=$(".hm-ban");
+ban.addEventListener("pointerdown",function(e){sx=e.clientX;clearInterval(tm)});
+ban.addEventListener("pointerup",function(e){if(sx!==null){var d=e.clientX-sx;if(Math.abs(d)>40)go(ix+(d<0?1:-1))}sx=null;auto()});
+ban.addEventListener("pointercancel",function(){sx=null;auto()});
+function toGrid(){setTimeout(function(){var t=$("#app .ptitle");if(t)t.scrollIntoView({behavior:"smooth",block:"start"})},80)}
+hm.addEventListener("click",function(e){
+  var b=e.target.closest(".hm-btn");
+  if(b){var a=b.dataset.a;if(a=="all"){goCat("All");toGrid()}else if(a=="wa")open("https://wa.me/"+WA,"_blank");else goAbout();return}
+  var c=e.target.closest(".hm-cat");if(c){goCat(c.dataset.c);toGrid()}
+});
+// search
+var inp=$("#hmq"),no=$("#hmno");
+function srch(){var q=inp.value.trim().toLowerCase(),n=0;document.querySelectorAll("#app .card").forEach(function(c){var ok=!q||c.querySelector("b").textContent.toLowerCase().indexOf(q)>-1;c.style.display=ok?"":"none";if(ok)n++});no.style.display=q&&!n?"block":"none"}
+inp.addEventListener("input",srch);
+function doSearch(){srch();toGrid()}
+$("#hmgo").addEventListener("click",doSearch);
+inp.addEventListener("keydown",function(e){if(e.key=="Enter")doSearch()});
+// bottom nav
+var bn=document.createElement("nav");bn.className="bn";
+bn.innerHTML='<div class="on" data-n="home"><i>🏠</i>Home</div><div data-n="cat"><i>🗂️</i>Categories</div><div data-n="cart"><i>🛒</i>Cart<span class="bdg" id="bdg">0</span></div><div data-n="about"><i>💬</i>Contact</div>';
+document.body.appendChild(bn);
+bn.addEventListener("click",function(e){var d=e.target.closest("div[data-n]");if(!d)return;var n=d.dataset.n;
+  if(n=="home"){goCat("All");inp.value="";srch()}else if(n=="cat")toggleMenu();else if(n=="cart")toggleCart();else goAbout()});
+// keep things in sync after every render
+var app=$("#app");
+function sync(){
+  document.body.classList.toggle("cartopen",!!$(".sheet"));
+  var t=$("#app .ptitle");
+  if(t){var nm=t.textContent.replace(/\s*\(\d+\)\s*$/,"").trim();hm.querySelectorAll(".hm-cat").forEach(function(c){c.classList.toggle("sel",nm==(c.dataset.c=="All"?"All Products":c.dataset.c))})}
+  srch();
+}
+new MutationObserver(sync).observe(app,{childList:true});
+var cnt=$("#cnt"),bdg=$("#bdg");
+function badge(){var n=+cnt.textContent||0;bdg.textContent=n;bdg.style.display=n?"flex":"none";bdg.classList.remove("pop");void bdg.offsetWidth;bdg.classList.add("pop")}
+new MutationObserver(badge).observe(cnt,{childList:true,characterData:true,subtree:true});
+function vis(){var a=location.hash=="#admin";hm.style.display=a?"none":"block";document.body.classList.toggle("adm",a)}
+addEventListener("hashchange",vis);vis();sync();
+})();
+</script>
 </body></html>
