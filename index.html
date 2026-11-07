@@ -151,7 +151,7 @@ function render(){
 function storeView(){
   const list=products.filter(p=>cat==="All"||p.category===cat);
   return `<h3 class="ptitle">${cat==="All"?"All Products":esc(cat)} <small>(${list.length})</small></h3>
-  <div class="grid ${anim?"anim":""}">${list.map((p,i)=>`<div class="card" data-d="${esc(p.description)}" style="--i:${i}">${p.imageUrl?`<img src="${esc(thumb(p.imageUrl))}" loading="lazy" alt="">`:`<div class="ph">📦</div>`}<b>${esc(p.name)}</b>${p.description?`<small class="cd">${esc(p.description)}</small>`:""}<span>${money(p.price)}</span>${p.inStock===false?`<em>Out of stock</em>`:`<button onclick="add('${p.id}')">Add to cart</button>`}</div>`).join("")}</div>
+  <div class="grid ${anim?"anim":""}">${list.map((p,i)=>`<div class="card" data-id="${p.id}" data-d="${esc(p.description)}" style="--i:${i}">${p.imageUrl?`<img src="${esc(thumb(p.imageUrl))}" loading="lazy" alt="">`:`<div class="ph">📦</div>`}<b>${esc(p.name)}</b>${p.description?`<small class="cd">${esc(p.description)}</small>`:""}<span>${money(p.price)}</span>${p.inStock===false?`<em>Out of stock</em>`:`<button onclick="add('${p.id}')">Add to cart</button>`}</div>`).join("")}</div>
   ${list.length?"":"<p>No products yet</p>"}${showCart?cartView():""}`;
 }
 function cartView(){
@@ -188,7 +188,7 @@ Object.assign(window,{
   qty:(id,d)=>{cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];render()},
   order:()=>{
     const items=cartItems(),total=items.reduce((a,x)=>a+x.p.price*x.q,0);
-    const msg="Hello NAAZ MULTI, I want to order:\n"+items.map(x=>`${x.q} x ${x.p.name} - ${money(x.p.price*x.q)}`).join("\n")+"\nTotal: "+money(total);
+    const base=location.origin+location.pathname,msg="Hello NAAZ MULTI, I want to order:\n\n"+items.map((x,i)=>`${i+1}) ${x.p.name} (${x.p.category})\n${x.q} x ${money(x.p.price)} = ${money(x.p.price*x.q)}\nPhoto & details: ${base}#p=${x.p.id}`).join("\n\n")+"\n\nTotal: "+money(total);
     open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank");
   },
   login:async()=>{
@@ -505,8 +505,7 @@ function vis(){var a=location.hash=="#admin";hm.style.display=a?"none":"block";d
 addEventListener("hashchange",vis);vis();sync();
 })();
 </script>
-  <script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");</script>
-  <style>
+<style>
 .pg{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#38bdf8,#e0f2fe,#2563eb);box-shadow:0 0 10px #38bdf8;z-index:25;transition:width .1s}
 .rv{opacity:0;transform:translateY(26px);transition:opacity .7s,transform .7s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;transform:none}
@@ -562,4 +561,17 @@ if(inp){
 }
 })();
 </script>
+<script>
+(function(){
+var m=location.hash.match(/^#p=(.+)$/);if(!m)return;
+var id=decodeURIComponent(m[1]),app=document.getElementById("app"),done=false;
+function show(){
+  if(done)return;
+  var c=[].slice.call(app.querySelectorAll(".card")).find(function(x){return x.dataset.id===id});
+  if(c){done=true;history.replaceState(null,"",location.pathname+location.search);setTimeout(function(){c.click()},2200)}
+}
+new MutationObserver(show).observe(app,{childList:true});show();
+})();
+</script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");</script>
 </body></html>
