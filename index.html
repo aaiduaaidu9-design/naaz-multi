@@ -574,4 +574,64 @@ new MutationObserver(show).observe(app,{childList:true});show();
 })();
 </script>
 <script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");</script>
+  <style>
+#cine{position:fixed;inset:0;z-index:60;pointer-events:none}
+.cn-h{position:absolute;left:0;right:0;height:50.5%;background:radial-gradient(ellipse at center,#0a2a66 0,#02091c 70%)}
+.cn-t{top:0;animation:cnUp .9s cubic-bezier(.7,0,.2,1) 2.6s forwards}
+.cn-b{bottom:0;animation:cnDn .9s cubic-bezier(.7,0,.2,1) 2.6s forwards}
+@keyframes cnUp{to{transform:translateY(-101%)}}
+@keyframes cnDn{to{transform:translateY(101%)}}
+.cn-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;animation:cnFade .5s 2.3s forwards}
+@keyframes cnFade{to{opacity:0}}
+.cn-l{width:0;height:2px;background:linear-gradient(90deg,transparent,#7dd3fc,transparent);box-shadow:0 0 14px #38bdf8;animation:cnLine 1.2s .2s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes cnLine{to{width:70%}}
+.cn-n{font-size:34px;letter-spacing:8px;color:#e0f2fe;text-shadow:0 0 24px #38bdf8}
+.cn-n span{display:inline-block;opacity:0;filter:blur(12px);transform:scale(1.6);animation:cnLet .8s var(--d) cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes cnLet{to{opacity:1;filter:blur(0);transform:none}}
+.cn-s{letter-spacing:10px;font-size:11px;color:#7dd3fc;opacity:0;animation:cnShow 1s 1.2s forwards}
+@keyframes cnShow{to{opacity:1}}
+.fx{position:fixed;inset:0;z-index:29;pointer-events:none}
+.fx.v{background:radial-gradient(ellipse at center,transparent 55%,#000000aa 125%)}
+.fx.g{inset:-10%;opacity:.07;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");animation:grain .8s steps(5) infinite}
+@keyframes grain{0%,100%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}}
+body::before{background-position:center calc(45% + var(--sy,0px))}
+.hm-sl{background-size:170% 170%;animation:kb 14s ease-in-out infinite alternate}
+@keyframes kb{from{background-position:0% 0%}to{background-position:100% 100%}}
+.hm-sl::before{content:"";position:absolute;width:260%;aspect-ratio:1;left:-80%;top:-120%;background:conic-gradient(from 0deg,transparent 0 8%,#ffffff22 10%,transparent 14% 30%,#ffffff1a 33%,transparent 37% 60%,#ffffff22 63%,transparent 67%);animation:rays 18s linear infinite;pointer-events:none}
+@keyframes rays{to{transform:rotate(360deg)}}
+.hm-sl>h2,.hm-sl>p,.hm-sl>.hm-btn{position:relative;z-index:1}
+.card{background-image:radial-gradient(circle at var(--mx,50%) var(--my,-20%),#ffffff26,transparent 60%)}
+.wipe{position:fixed;inset:0;z-index:28;pointer-events:none;background:linear-gradient(100deg,transparent 30%,#38bdf855 49%,#e0f2fe77 51%,transparent 70%);transform:translateX(-100%);animation:wipe .7s ease-in-out forwards}
+@keyframes wipe{to{transform:translateX(100%)}}
+.pvimg{position:relative;isolation:isolate}
+.pvimg::before{content:"";position:absolute;left:10%;right:10%;top:0;bottom:0;border-radius:50%;background:conic-gradient(#38bdf8aa,transparent,#2563ebaa,transparent,#38bdf8aa);filter:blur(26px);z-index:-1;animation:pvspin 7s linear infinite}
+@keyframes pvspin{to{transform:rotate(360deg)}}
+</style>
+<script>
+(function(){
+// cinematic intro (once per session)
+var seen=0;try{seen=sessionStorage.getItem("cine")}catch(e){}
+if(!matchMedia("(prefers-reduced-motion:reduce)").matches&&location.hash!=="#admin"&&!seen){
+  try{sessionStorage.setItem("cine","1")}catch(e){}
+  var c=document.createElement("div");c.id="cine";
+  c.innerHTML='<i class="cn-h cn-t"></i><i class="cn-h cn-b"></i><div class="cn-c"><div class="cn-l"></div><b class="cn-n"></b><small class="cn-s">COLLECTION</small></div>';
+  c.querySelector(".cn-n").innerHTML="NAAZ MULTI".split("").map(function(ch,i){return '<span style="--d:'+(0.3+i*0.08)+'s">'+(ch==" "?"&nbsp;":ch)+'</span>'}).join("");
+  document.body.appendChild(c);
+  setTimeout(function(){c.remove()},3700);
+}
+// vignette + film grain
+["v","g"].forEach(function(k){var d=document.createElement("div");d.className="fx "+k;document.body.appendChild(d)});
+// parallax logo watermark
+addEventListener("scroll",function(){document.documentElement.style.setProperty("--sy",(scrollY*.12)+"px")},{passive:true});
+// card spotlight follows finger
+function spot(e){var c=e.target.closest&&e.target.closest(".card");if(!c)return;var r=c.getBoundingClientRect();c.style.setProperty("--mx",(e.clientX-r.left)+"px");c.style.setProperty("--my",(e.clientY-r.top)+"px")}
+document.addEventListener("pointermove",spot,{passive:true});document.addEventListener("pointerdown",spot,{passive:true});
+// light wipe when changing category
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".hm-cat,button.mi,.bn div[data-n=home]"))return;
+  var w=document.createElement("div");w.className="wipe";document.body.appendChild(w);
+  setTimeout(function(){w.remove()},800);
+},true);
+})();
+</script>
 </body></html>
